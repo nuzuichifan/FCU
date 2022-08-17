@@ -16,10 +16,7 @@ LR_CRITIC = 0.002
 GAMMA = 0.001
 TAU = 0.01
 MEMORY_CAPACITY = 2000
-
 BATCH_SIZE = 64
-
-
 
 
 ########################## DDPG Framework ######################
@@ -150,19 +147,9 @@ a_air_bound_low=210
 a_air_bound_high=1020
 state = np.load('state_4.npy')
 ddpg_base=DDPG(a_dim,s_dim)
-ddpg_1 = DDPG(a_dim, s_dim)
-ddpg_2 = DDPG(a_dim, s_dim)
-ddpg_3 = DDPG(a_dim, s_dim)
-ddpg_4 = DDPG(a_dim, s_dim)
 
-var_1_0 = 3  # the controller of exploration which will decay during training process
-var_1_1 = 3
-var_2_0 = 3  # the controller of exploration which will decay during training process
-var_2_1 = 3
-var_3_0 = 3  # the controller of exploration which will decay during training process
-var_3_1 = 3
-var_4_0 = 3  # the controller of exploration which will decay during training process
-var_4_1 = 3
+
+
 var_base_0 = 3  # the controller of exploration which will decay during training process
 var_base_1 = 3
 var_limiti=0.15
@@ -180,10 +167,8 @@ for i_episode in range(0,20):
         if s > 0:
             s_normalized = s / 5000
             s__normalized = s_ / 5000
-
             rand_num = random.random()
             EPS = EPS - EPS_DECAY
-
             if rand_num < EPS:
                 if s<2700:#(200-300,200-400)水 空气 1
                     a = ddpg_1.choose_action(s_normalized)
@@ -196,7 +181,6 @@ for i_episode in range(0,20):
                                                                         W_water=a_water / 3600, t_in_dryair=28,
                                                                         t_in_relative_humidity=0.6)
                     cls, Q, t2, d2, tw2, W_water, V_air, Ppump, Pfan = environment.approch()
-
                     # 水流量：(210-580)step5  75；风量：（210-1020）step10  82
                     if a_water >= 210 and a_water <= 580 and a_air >= 210 and a_air <= 1020:
                         Punish_coefficient = 0
@@ -204,23 +188,6 @@ for i_episode in range(0,20):
                         Punish_coefficient = 1000
                     Punish_coefficient_1 = k - k * math.exp(-((Q - s) ** 2) / (2 * (s * 0.1) ** 2))
                     r = -Punish_coefficient_1 - (Pfan + Ppump) - Punish_coefficient
-                    #print(s_normalized.squeeze(), a, r.squeeze() / 1500, s__normalized.squeeze())
-                    ddpg_1.store_transition(s_normalized.squeeze(), a, r.squeeze() / 1500,
-                                          s__normalized.squeeze())  # store the transition to memory
-                    # print(s_normalized, a, r / 5000, s__normalized)
-
-
-                    #ddpg_base.store_transition(s_normalized.squeeze())
-                    if ddpg_1.pointer > MEMORY_CAPACITY:
-                        # var_1_0 *= 0.9995  # decay the exploration controller factor
-                        # var_1_1 *= 0.9995
-                        if var_1_0 > var_limiti:
-                            var_1_0 *= var_pre  # decay the exploration controller factor
-                            var_1_1 *= var_pre
-                        else:
-                            var_1_0 = var_limiti  # decay the exploration controller factor
-                            var_1_1 = var_limiti
-                        ddpg_1.learn()
                 if s >= 2700 and s<3500:#(300-400,400-600)水 空气 2
                     a = ddpg_2.choose_action(s_normalized)
                     a = (a.numpy()).squeeze()
@@ -232,7 +199,6 @@ for i_episode in range(0,20):
                                                                         W_water=a_water / 3600, t_in_dryair=28,
                                                                         t_in_relative_humidity=0.6)
                     cls, Q, t2, d2, tw2, W_water, V_air, Ppump, Pfan = environment.approch()
-
                     # 水流量：(210-580)step5  75；风量：（210-1020）step10  82
                     if a_water >= 210 and a_water <= 580 and a_air >= 210 and a_air <= 1020:
                         Punish_coefficient = 0
@@ -240,20 +206,7 @@ for i_episode in range(0,20):
                         Punish_coefficient = 1000
                     Punish_coefficient_1 = k - k * math.exp(-((Q - s) ** 2) / (2 * (s * 0.1) ** 2))
                     r = -Punish_coefficient_1 - (Pfan + Ppump) - Punish_coefficient
-                   # print(s_normalized.squeeze(), a, r.squeeze() / 1500, s__normalized.squeeze())
-                    ddpg_2.store_transition(s_normalized.squeeze(), a, r.squeeze() / 1500,
-                                          s__normalized.squeeze())  # store the transition to memory
-                    # print(s_normalized, a, r / 5000, s__normalized)
-                    if ddpg_2.pointer > MEMORY_CAPACITY:
-                        # var_2_0 *= 0.9995  # decay the exploration controller factor
-                        # var_2_1 *= 0.9995
-                        if var_2_0 > var_limiti:
-                            var_2_0 *= var_pre  # decay the exploration controller factor
-                            var_2_1 *= var_pre
-                        else:
-                            var_2_0 = var_limiti  # decay the exploration controller factor
-                            var_2_1 = var_limiti
-                        ddpg_2.learn()
+
                 if s >=3500 and s<4100:#(400-500,600-800)水 空气3
                     a = ddpg_3.choose_action(s_normalized)
                     a = (a.numpy()).squeeze()
@@ -265,7 +218,6 @@ for i_episode in range(0,20):
                                                                         W_water=a_water / 3600, t_in_dryair=28,
                                                                         t_in_relative_humidity=0.6)
                     cls, Q, t2, d2, tw2, W_water, V_air, Ppump, Pfan = environment.approch()
-
                     # 水流量：(210-580)step5  75；风量：（210-1020）step10  82
                     if a_water >= 210 and a_water <= 580 and a_air >= 210 and a_air <= 1020:
                         Punish_coefficient = 0
@@ -273,20 +225,7 @@ for i_episode in range(0,20):
                         Punish_coefficient = 1000
                     Punish_coefficient_1 = k - k * math.exp(-((Q - s) ** 2) / (2 * (s * 0.1) ** 2))
                     r = -Punish_coefficient_1 - (Pfan + Ppump) - Punish_coefficient
-                    #print(s_normalized.squeeze(), a, r.squeeze() / 1500, s__normalized.squeeze())
-                    ddpg_3.store_transition(s_normalized.squeeze(), a, r.squeeze() / 1500,
-                                          s__normalized.squeeze())  # store the transition to memory
-                    # print(s_normalized, a, r / 5000, s__normalized)
-                    if ddpg_3.pointer > MEMORY_CAPACITY:
-                        # var_3_0 *= 0.9995  # decay the exploration controller factor
-                        # var_3_1 *= 0.9995
-                        if var_3_0 > var_limiti:
-                            var_3_0 *= var_pre  # decay the exploration controller factor
-                            var_3_1 *= var_pre
-                        else:
-                            var_3_0 = var_limiti  # decay the exploration controller factor
-                            var_3_1 = var_limiti
-                        ddpg_3.learn()
+
                 if s >= 4100:#(500-600,800-1000) 水 空气4
                     a = ddpg_4.choose_action(s_normalized)
                     a = (a.numpy()).squeeze()
@@ -298,7 +237,6 @@ for i_episode in range(0,20):
                                                                         W_water=a_water / 3600, t_in_dryair=28,
                                                                         t_in_relative_humidity=0.6)
                     cls, Q, t2, d2, tw2, W_water, V_air, Ppump, Pfan = environment.approch()
-
                     # 水流量：(210-580)step5  75；风量：（210-1020）step10  82
                     if a_water >= 210 and a_water <= 580 and a_air >= 210 and a_air <= 1020:
                         Punish_coefficient = 0
@@ -306,18 +244,7 @@ for i_episode in range(0,20):
                         Punish_coefficient = 1000
                     Punish_coefficient_1 = k - k * math.exp(-((Q - s) ** 2) / (2 * (s * 0.1) ** 2))
                     r = -Punish_coefficient_1 - (Pfan + Ppump) - Punish_coefficient
-                    #print(s_normalized.squeeze(), a, r.squeeze() / 1500, s__normalized.squeeze())
-                    ddpg_4.store_transition(s_normalized.squeeze(), a, r.squeeze() / 1500,
-                                          s__normalized.squeeze())  # store the transition to memory
-                    # print(s_normalized, a, r / 5000, s__normalized)
-                    if ddpg_4.pointer > MEMORY_CAPACITY:
-                        if var_4_0 > var_limiti:
-                            var_4_0 *= var_pre  # decay the exploration controller factor
-                            var_4_1 *= var_pre
-                        else:
-                            var_4_0 = var_limiti  # decay the exploration controller factor
-                            var_4_1 = var_limiti
-                        ddpg_4.learn()
+
                 # a_water = a[0] * 115.625 + 395
                 # a_air = a[1] * 253.125 + 615
                 a[0]=(a_water-395)/115.625
@@ -372,14 +299,6 @@ for i_episode in range(0,20):
                         var_base_1 = 0.1
 
                     ddpg_base.learn()
-
-
-
-
-
-
-
-
             # print('Ep: ', i, ' |', 'r:', r)
             # print(a_water, a_air)
             worksheet_reward.write(i, i_episode, label=float(r))
@@ -387,13 +306,11 @@ for i_episode in range(0,20):
             worksheet_a_air.write(i, i_episode, label=a_air)
             worksheet_Pfan.write(i, i_episode, label=Pfan)
             worksheet_Ppump.write(i, i_episode, label=Ppump)
-
             worksheet_Q.write(i, i_episode, label=Q)
             worksheet_PfandPp.write(i, i_episode, label=Ppump + Pfan)
             worksheet_ccd_Q.write(i, i_episode, label=float(math.fabs(Q - s) / s))
             total_reward = total_reward + float(r)
             total_power = total_power + Ppump + Pfan
-
     worksheet_reward.write(4392, i_episode, label=total_reward)
     worksheet_PfandPp.write(4392, i_episode, label=total_power)
     total_reward = 0
