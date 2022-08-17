@@ -125,7 +125,7 @@ class DDPG(object):
 
 
 ############################### Training ######################################
-# Define the env in gym
+
 
 workbook = xlwt.Workbook(encoding = 'utf-8')
 # 创建一个worksheet
